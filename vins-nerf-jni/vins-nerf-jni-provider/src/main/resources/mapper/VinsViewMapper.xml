@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vins_nerf.jni.dao.VinsViewMapper">
+    <resultMap type="VinsView" id="vinsViewMap">
+        <id property="id" column="ID"/>
+        <result property="userId" column="USER_ID"/>
+        <result property="name" column="NAME"/>
+        <result property="version" column="VERSION"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+    </resultMap>
+
+    <select id="query" resultMap="vinsViewMap" parameterType="VinsView">
+        SELECT * FROM vins_view
+        <where>
+            <if test="id != null">and `ID` = #{id}</if>
+            <if test="userId != null">and `USER_ID` = #{userId}</if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="VinsView" useGeneratedKeys="true" keyProperty="id">
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID() AS ID
+        </selectKey>
+        INSERT INTO vins_view(
+        `ID`,
+        `USER_ID`,
+        `NAME`,
+        `VERSION`,
+        `CREATE_TIME`,
+        `UPDATE_TIME`
+        ) VALUES (
+        #{id},
+        #{userId},
+        #{name},
+        0,
+        now(),
+        now()
+        )
+    </insert>
+
+    <update id="update" parameterType="VinsView">
+        UPDATE vins_view
+        <set>
+            <if test="userId != null">`USER_ID` = #{userId},</if>
+            <if test="name != null">`NAME` = #{name},</if>
+            `VERSION` = `VERSION` + 1,
+            `UPDATE_TIME` = now(),
+        </set>
+        <where>
+            <if test="id != null">AND `ID` = #{id}</if>
+            <if test="version != null">AND `VERSION` = #{version}</if>
+        </where>
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM vins_view
+        <where>
+            `ID` = #{id}
+        </where>
+    </delete>
+</mapper>
