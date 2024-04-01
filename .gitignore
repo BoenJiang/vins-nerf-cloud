@@ -1,0 +1,51 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+lib/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+.run
+*.iws
+*.iml
+*.ipr
+*.log
+*.tar.gz
+*.zip
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+!**/target
+
+### VS Code ###
+.vscode/
+
+### cmake ###
+core/build/*
+core/debug/*
+core/release/*
+
+### Docker ###
+docker/mysql/data/*
+docker/mysql/securedir/*
+docker/nacos/logs/*
+docker/redis/data/*
