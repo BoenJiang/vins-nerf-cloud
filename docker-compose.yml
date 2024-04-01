@@ -1,0 +1,107 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:${MYSQL_VERSION}
+    container_name: vins-nerf-mysql
+    command: --authentication_policy=caching_sha2_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --default-time-zone=+8:00
+    restart: always
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: yes
+      privileged: true #【开发环境方便调试，生产环境应删除】
+    volumes:
+      - ./docker/mysql/config/my.cnf:/etc/my.cnf
+      - ./docker/mysql/data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+      - ./docker/mysql/securedir:/var/lib/mysql-files
+    ports: #【开发环境方便调试，生产环境应删除】
+      - "3307:3306" #【开发环境方便调试，生产环境应删除】
+    networks:
+      - mysql-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  redis:
+    image: redis:${REDIS_VERSION}
+    container_name: vins-nerf-redis
+    restart: always
+    privileged: true #【开发环境方便调试，生产环境应删除】
+    ports: #【开发环境方便调试，生产环境应删除】
+      - "6380:6379" #【开发环境方便调试，生产环境应删除】
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - ./docker/redis/data:/data
+      - ./docker/redis/redis.conf:/usr/local/redis.conf
+    command: [ "redis-server", "/usr/local/redis.conf" ]
+    networks:
+      - redis-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+
+  xxl-job-admin:
+    image: xxl-job-admin:${XXL_JOB_VERSION}
+    container_name: xxl-job-admin
+    ports:
+      - "8088:8080"
+    env_file:
+      - ./docker/xxl-job/xxl-job.env
+    networks:
+      - mysql-network
+
+  nacos:
+    image: nacos/nacos-server:${NACOS_VERSION}
+    container_name: vins-nerf-nacos
+    env_file:
+      - docker/nacos/nacos.env
+    volumes:
+      - ./docker/nacos/logs:/home/nacos/logs
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - mysql-network
+
+  vins-nerf:
+    image: vins-nerf
+    container_name: vins-nerf-sever
+    ports:
+      - "8080:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - mysql-network
+      - redis-network
+
+networks:
+  mysql-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.28.0.0/16
+          gateway: 172.28.0.254
+
+  redis-network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.29.0.0/16
+          gateway: 172.29.0.254

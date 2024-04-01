@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vins_nerf.jni.dao.VinsLineMapper">
+    <resultMap type="VinsLine" id="vinsLineMap">
+        <id property="id" column="ID"/>
+        <result property="name" column="NAME"/>
+        <result property="viewId" column="VIEW_ID"/>
+        <result property="cameraId" column="CAMERA_ID"/>
+        <result property="ossPath" column="OSS_PATH"/>
+        <result property="version" column="VERSION"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+    </resultMap>
+
+    <select id="query" resultMap="vinsLineMap" parameterType="VinsLine">
+        SELECT * FROM vins_line
+        <where>
+            <if test="id != null">and `ID` = #{id}</if>
+            <if test="viewId != null">and `VIEW_ID` = #{viewId}</if>
+            <if test="cameraId != null">and `CAMERA_ID` = #{cameraId}</if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="VinsImage" useGeneratedKeys="true" keyProperty="id">
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID() AS ID
+        </selectKey>
+        INSERT INTO vins_line(
+        `ID`,
+        `NAME`,
+        `VIEW_ID`,
+        `CAMERA_ID`,
+        `OSS_PATH`,
+        `VERSION`,
+        `CREATE_TIME`,
+        `UPDATE_TIME`
+        ) VALUES (
+        #{id},
+        #{name},
+        #{viewId},
+        #{cameraId},
+        #{ossPath},
+        0,
+        now(),
+        now()
+        )
+    </insert>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM vins_line
+        <where>
+            `ID` = #{id}
+        </where>
+    </delete>
+</mapper>

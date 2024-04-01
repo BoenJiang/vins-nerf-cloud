@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.vins_nerf.jni.dao.VinsFilterMapper">
+    <resultMap type="VinsFilter" id="vinsFilterMap">
+        <id property="id" column="ID"/>
+        <result property="type" column="TYPE" typeHandler="com.vins_nerf.core.enums.handler.VinsFilterTypeHandler"/>
+        <result property="feature1" column="FEATURE1"/>
+        <result property="feature2" column="FEATURE2"/>
+        <result property="feature3" column="FEATURE3"/>
+        <result property="feature4" column="FEATURE4"/>
+        <result property="feature5" column="FEATURE5"/>
+        <result property="feature6" column="FEATURE6"/>
+        <result property="version" column="VERSION"/>
+        <result property="createTime" column="CREATE_TIME"/>
+        <result property="updateTime" column="UPDATE_TIME"/>
+    </resultMap>
+
+    <select id="query" resultMap="vinsFilterMap" parameterType="VinsFilter">
+        SELECT * FROM vins_filter
+        <where>
+            <if test="id != null">and `ID` = #{id}</if>
+            <if test="type != null">and `TYPE` = #{type}</if>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="VinsFilter" useGeneratedKeys="true" keyProperty="id">
+        <selectKey resultType="java.lang.Long" order="AFTER" keyProperty="id">
+            SELECT LAST_INSERT_ID() AS ID
+        </selectKey>
+        INSERT INTO vins_filter(
+        `ID`,
+        `TYPE`,
+        `FEATURE1`,
+        `FEATURE2`,
+        `FEATURE3`,
+        `FEATURE4`,
+        `FEATURE5`,
+        `FEATURE6`,
+        `VERSION`,
+        `CREATE_TIME`,
+        `UPDATE_TIME`
+        ) VALUES (
+        #{id},
+        #{type},
+        #{feature1},
+        #{feature2},
+        #{feature3},
+        #{feature4},
+        #{feature5},
+        #{feature6},
+        0,
+        now(),
+        now()
+        )
+    </insert>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        DELETE FROM vins_filter
+        <where>
+            `ID` = #{id}
+        </where>
+    </delete>
+</mapper>
